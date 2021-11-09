@@ -13,7 +13,7 @@ def matrix(df,
            filter=None, n=0, p=0, sort=None,
            figsize=(25, 10), width_ratios=(15, 1), color=(0.25, 0.25, 0.25),
            fontsize=16, labels=None, sparkline=True, inline=False,
-           freq=None, ax=None):
+           freq=None, ax=None, rotation_x=45):
     """
     A matrix visualization of the nullity of the given DataFrame.
 
@@ -30,6 +30,7 @@ def matrix(df,
     :param width_ratios: The ratio of the width of the matrix to the width of the sparkline. Defaults to `(15, 1)`.
     Does nothing if `sparkline=False`.
     :param color: The color of the filled columns. Default is `(0.25, 0.25, 0.25)`.
+    :param rotation_x: The rotation of the labels on the x axis, changing to `90` makes labels vertical. The default is `45`.
     :return: If `inline` is False, the underlying `matplotlib.figure` object. Else, nothing.
     """
     df = nullity_filter(df, filter=filter, n=n, p=p)
@@ -83,7 +84,10 @@ def matrix(df,
     if labels or (labels is None and len(df.columns) <= 50):
         ha = 'left'
         ax0.set_xticks(list(range(0, width)))
-        ax0.set_xticklabels(list(df.columns), rotation=45, ha=ha, fontsize=fontsize)
+        if rotation_x == 90:
+            ax0.set_xticklabels(list(df.columns), rotation=rotation_x, ha='center', fontsize=fontsize)
+        else:
+            ax0.set_xticklabels(list(df.columns), rotation=rotation_x, ha=ha, fontsize=fontsize)
     else:
         ax0.set_xticks([])
 
@@ -165,7 +169,7 @@ def matrix(df,
             # Set up and rotate the sparkline label.
             ha = 'left'
             ax1.set_xticks([min_completeness + (max_completeness - min_completeness) / 2])
-            ax1.set_xticklabels([label], rotation=45, ha=ha, fontsize=fontsize)
+            ax1.set_xticklabels([label], rotation=rotation_x, ha=ha, fontsize=fontsize)
             ax1.xaxis.tick_top()
             ax1.set_yticks([])
         else:
@@ -197,7 +201,7 @@ def matrix(df,
 
 
 def bar(df, figsize=None, fontsize=16, labels=None, log=False, color='dimgray', inline=False,
-        filter=None, n=0, p=0, sort=None, ax=None, orientation=None):
+        filter=None, n=0, p=0, sort=None, ax=None, orientation=None, rotation_x=45):
     """
     A bar chart visualization of the nullity of the given DataFrame.
 
@@ -214,6 +218,7 @@ def bar(df, figsize=None, fontsize=16, labels=None, log=False, color='dimgray', 
     :param color: The color of the filled columns. Default to the RGB multiple `(0.25, 0.25, 0.25)`.
     :param orientation: The way the bar plot is oriented. Defaults to vertical if there are less than or equal to 50
     columns and horizontal if there are more.
+    :param rotation_x: The rotation of the labels on the x axis, changing to `90` makes labels vertical. The default is `45`.
     :return: If `inline` is False, the underlying `matplotlib.figure` object. Else, nothing.
     """
     df = nullity_filter(df, filter=filter, n=n, p=p)
@@ -247,8 +252,10 @@ def bar(df, figsize=None, fontsize=16, labels=None, log=False, color='dimgray', 
 
     # Start appending elements, starting with a modified bottom x axis.
     if labels or (labels is None and len(df.columns) <= 50):
-        ax1.set_xticklabels(ax1.get_xticklabels(), rotation=45, ha='right', fontsize=fontsize)
-
+        if rotation_x == 90:
+            ax1.set_xticklabels(ax1.get_xticklabels(), rotation=rotation_x, ha='center', fontsize=fontsize)
+        else:
+            ax1.set_xticklabels(ax1.get_xticklabels(), rotation=rotation_x, ha='right', fontsize=fontsize)
         # Create the numerical ticks.
         ax2 = ax1.twinx()
         axes.append(ax2)
@@ -269,7 +276,10 @@ def bar(df, figsize=None, fontsize=16, labels=None, log=False, color='dimgray', 
         axes.append(ax3)
         ax3.set_xticks(ax1.get_xticks())
         ax3.set_xlim(ax1.get_xlim())
-        ax3.set_xticklabels(nullity_counts.values, fontsize=fontsize, rotation=45, ha='left')
+        if rotation_x == 90:
+            ax3.set_xticklabels(nullity_counts.values, fontsize=fontsize, rotation=rotation_x, ha='center')
+        else:
+            ax3.set_xticklabels(nullity_counts.values, fontsize=fontsize, rotation=rotation_x, ha='left')
     else:
         # Create the numerical ticks.
         ax2 = ax1.twinx()
@@ -327,7 +337,8 @@ def bar(df, figsize=None, fontsize=16, labels=None, log=False, color='dimgray', 
 def heatmap(df, inline=False,
             filter=None, n=0, p=0, sort=None,
             figsize=(20, 12), fontsize=16, labels=True,
-            cmap='RdBu', vmin=-1, vmax=1, cbar=True, ax=None
+            cmap='RdBu', vmin=-1, vmax=1, cbar=True, ax=None,
+            rotation_x=45
             ):
     """
     Presents a `seaborn` heatmap visualization of nullity correlation in the given DataFrame.
@@ -350,6 +361,7 @@ def heatmap(df, inline=False,
     :param vmax: The normalized colormap threshold. Defaults to 1, e.g. the bottom of the color scale.
     :param inline: Whether or not the figure is inline. If it's not then instead of getting plotted, this method will
     return its figure.
+    :param rotation_x: The rotation of the labels on the x axis, changing to `90` makes labels vertical. The default is `45`.
     :return: If `inline` is False, the underlying `matplotlib.figure` object. Else, nothing.
     """
     # Apply filters and sorts, set up the figure.
@@ -380,7 +392,11 @@ def heatmap(df, inline=False,
 
     # Apply visual corrections and modifications.
     ax0.xaxis.tick_bottom()
-    ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=45, ha='right', fontsize=fontsize)
+    if rotation_x == 90:
+        ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=rotation_x, ha='center', fontsize=fontsize)
+    else:    
+        ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=rotation_x, ha='right', fontsize=fontsize)
+    
     ax0.set_yticklabels(ax0.yaxis.get_majorticklabels(), fontsize=fontsize, rotation=0)
     ax0.set_yticklabels(ax0.yaxis.get_majorticklabels(), rotation=0, fontsize=fontsize)
     ax0.xaxis.set_ticks_position('none')
@@ -408,8 +424,7 @@ def heatmap(df, inline=False,
 def dendrogram(df, method='average',
                filter=None, n=0, p=0,
                orientation=None, figsize=None,
-               fontsize=16, inline=False, ax=None
-               ):
+               fontsize=16, inline=False, ax=None, rotation_x=45):
     """
     Fits a `scipy` hierarchical clustering algorithm to the given DataFrame's variables and visualizes the results as
     a `scipy` dendrogram.
@@ -429,6 +444,7 @@ def dendrogram(df, method='average',
     columns and left-right if there are more.
     :param inline: Whether or not the figure is inline. If it's not then instead of getting plotted, this method will
     return its figure.
+    :param rotation_x: The rotation of the labels on the x axis, changing to `90` makes labels vertical. The default is `45`.
     :return: If `inline` is False, the underlying `matplotlib.figure` object. Else, nothing.
     """
     if not figsize:
@@ -480,9 +496,15 @@ def dendrogram(df, method='average',
 
     # Set up the categorical axis labels and draw.
     if orientation == 'bottom':
-        ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=45, ha='left')
+        if rotation_x == 90:
+            ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=rotation_x, ha='center')
+        else:
+            ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=rotation_x, ha='left')
     elif orientation == 'top':
-        ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=45, ha='right')
+        if rotation_x == 90:
+            ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=rotation_x, ha='center')
+        else:
+            ax0.set_xticklabels(ax0.xaxis.get_majorticklabels(), rotation=rotation_x, ha='right')
     if orientation == 'bottom' or orientation == 'top':
         ax0.tick_params(axis='y', labelsize=int(fontsize / 16 * 20))
     else:
